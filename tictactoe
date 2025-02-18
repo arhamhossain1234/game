@@ -65,13 +65,56 @@
         let player = "X";
         let bot = "O";
 
-        // AI Bot Move (Random for simplicity)
+        // Minimax Algorithm (Arham is now unbeatable)
+        function minimax(board, depth, isMaximizing) {
+            let winner = checkWinnerRaw(board);
+            if (winner === "O") return 10 - depth;
+            if (winner === "X") return depth - 10;
+            if (!board.includes(null)) return 0;
+
+            if (isMaximizing) {
+                let bestScore = -Infinity;
+                for (let i = 0; i < 9; i++) {
+                    if (!board[i]) {
+                        board[i] = "O";
+                        let score = minimax(board, depth + 1, false);
+                        board[i] = null;
+                        bestScore = Math.max(score, bestScore);
+                    }
+                }
+                return bestScore;
+            } else {
+                let bestScore = Infinity;
+                for (let i = 0; i < 9; i++) {
+                    if (!board[i]) {
+                        board[i] = "X";
+                        let score = minimax(board, depth + 1, true);
+                        board[i] = null;
+                        bestScore = Math.min(score, bestScore);
+                    }
+                }
+                return bestScore;
+            }
+        }
+
+        // AI Move (Minimax)
         function botMove() {
-            let emptyCells = gameBoard.map((v, i) => v === null ? i : null).filter(v => v !== null);
-            if (emptyCells.length > 0) {
-                let move = emptyCells[Math.floor(Math.random() * emptyCells.length)];
-                gameBoard[move] = bot;
-                cells[move].innerText = bot;
+            let bestScore = -Infinity;
+            let bestMove;
+            for (let i = 0; i < 9; i++) {
+                if (!gameBoard[i]) {
+                    gameBoard[i] = bot;
+                    let score = minimax(gameBoard, 0, false);
+                    gameBoard[i] = null;
+                    if (score > bestScore) {
+                        bestScore = score;
+                        bestMove = i;
+                    }
+                }
+            }
+            if (bestMove !== undefined) {
+                gameBoard[bestMove] = bot;
+                cells[bestMove].innerText = bot;
                 if (checkWinner(bot)) {
                     setTimeout(() => alert("Arham wins! 🤖"), 100);
                     return resetGame();
@@ -92,6 +135,20 @@
                 [0, 4, 8], [2, 4, 6]  // Diagonals
             ];
             return winningCombos.some(combo => combo.every(index => gameBoard[index] === symbol));
+        }
+
+        function checkWinnerRaw(board) {
+            const winningCombos = [
+                [0, 1, 2], [3, 4, 5], [6, 7, 8], 
+                [0, 3, 6], [1, 4, 7], [2, 5, 8], 
+                [0, 4, 8], [2, 4, 6]
+            ];
+            for (let combo of winningCombos) {
+                if (board[combo[0]] && board[combo[0]] === board[combo[1]] && board[combo[0]] === board[combo[2]]) {
+                    return board[combo[0]];
+                }
+            }
+            return null;
         }
 
         // Handle Player Click
