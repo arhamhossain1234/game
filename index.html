@@ -3,50 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Beat Arham</title>
+    <title>Tic-Tac-Toe vs Arham</title>
     <style>
         body {
-            font-family: 'Arial', sans-serif;
-            background-color: #282c34;
-            color: white;
+            font-family: Arial, sans-serif;
             text-align: center;
-            margin: 0;
-            padding: 0;
+            background-color: #1e1e1e;
+            color: white;
         }
-        h1 {
-            margin-top: 50px;
-            font-size: 3rem;
+        .container {
+            display: none;
         }
-        .start-menu {
+        .start-menu, .end-menu {
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             height: 100vh;
-        }
-        .button {
-            background-color: #007BFF;
-            color: white;
-            padding: 15px 30px;
-            margin: 15px;
-            font-size: 1.2rem;
-            cursor: pointer;
-            border-radius: 5px;
-            transition: background-color 0.3s;
-        }
-        .button:hover {
-            background-color: #0056b3;
-        }
-        .game-container {
-            display: none;
-            margin-top: 50px;
-        }
-        .back-button {
-            margin-top: 20px;
-            background-color: #28a745;
-            font-size: 1rem;
-            padding: 10px 20px;
-            cursor: pointer;
         }
         .board {
             display: grid;
@@ -69,83 +42,72 @@
         .cell.taken {
             cursor: not-allowed;
         }
-        .input-container {
-            margin: 20px;
+        .popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            color: black;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
         }
-        .input-container input {
-            padding: 10px;
-            font-size: 1rem;
-            width: 200px;
-            border-radius: 5px;
-            border: 2px solid #fff;
-            background-color: #333;
-            color: white;
-        }
-        .input-container button {
-            padding: 10px 20px;
-            margin-left: 10px;
+        .button {
             background-color: #007BFF;
-            border: none;
             color: white;
+            padding: 10px 20px;
+            border: none;
             cursor: pointer;
-            font-size: 1rem;
-            border-radius: 5px;
-        }
-        .result {
-            font-size: 1.2rem;
-            margin-top: 20px;
-        }
-        .result.correct {
-            color: green;
-        }
-        .result.incorrect {
-            color: red;
+            font-size: 18px;
+            margin-top: 10px;
         }
     </style>
 </head>
 <body>
 
-    <h1>Beat Arham</h1>
-
     <!-- Start Menu -->
     <div class="start-menu">
-        <button class="button" onclick="startTicTacToe()">Start Tic-Tac-Toe</button>
-        <button class="button" onclick="startPasswordGame()">Start Password Game</button>
+        <h1>Welcome to Tic-Tac-Toe vs Arham</h1>
+        <button class="button" onclick="startGame()">Start Game</button>
     </div>
 
-    <!-- Tic-Tac-Toe Game -->
-    <div class="game-container" id="ticTacToeGame">
+    <!-- Game Board -->
+    <div class="container">
         <h2>Tic-Tac-Toe vs Arham</h2>
         <div class="board" id="board"></div>
-        <button class="back-button" onclick="goBackToMenu()">Back to Menu</button>
     </div>
 
-    <!-- Password Guessing Game -->
-    <div class="game-container" id="passwordGame">
-        <h2>Password Guessing Game</h2>
-        <p class="hint">Hint: The password is a mix of uppercase letters, lowercase letters, and numbers.</p>
-        <div class="input-container">
-            <input type="text" id="userGuess" placeholder="Enter your guess" maxlength="6">
-            <button onclick="checkPassword()">Submit</button>
-        </div>
-        <p class="result" id="result"></p>
-        <button class="back-button" onclick="goBackToMenu()">Back to Menu</button>
+    <!-- End Menu -->
+    <div class="end-menu" style="display: none;">
+        <h1 id="endMessage"></h1>
+        <button class="button" onclick="restartGame()">Restart</button>
+    </div>
+
+    <!-- Popup Message -->
+    <div class="popup" id="popup">
+        <p id="popupMessage"></p>
+        <button class="button" onclick="closePopup()">OK</button>
     </div>
 
     <script>
-        // Tic-Tac-Toe Game Variables
         const board = document.getElementById("board");
+        const popup = document.getElementById("popup");
+        const popupMessage = document.getElementById("popupMessage");
         const startMenu = document.querySelector(".start-menu");
-        const ticTacToeGame = document.getElementById("ticTacToeGame");
-        const passwordGame = document.getElementById("passwordGame");
+        const gameContainer = document.querySelector(".container");
+        const endMenu = document.querySelector(".end-menu");
+        const endMessage = document.getElementById("endMessage");
+
         let gameBoard = ["", "", "", "", "", "", "", "", ""];
         let currentPlayer = "X"; // Human starts first
         let gameActive = false;
 
-        // Function to start Tic-Tac-Toe Game
-        function startTicTacToe() {
+        // Start Game
+        function startGame() {
             startMenu.style.display = "none";
-            ticTacToeGame.style.display = "block";
+            gameContainer.style.display = "block";
             createBoard();
             gameActive = true;
         }
@@ -172,56 +134,118 @@
             event.target.innerText = "X";
             event.target.classList.add("taken");
 
-            // Add AI Move and win/tie check logic here...
-        }
-
-        // Function to go back to the main menu
-        function goBackToMenu() {
-            ticTacToeGame.style.display = "none";
-            passwordGame.style.display = "none";
-            startMenu.style.display = "flex";
-        }
-
-        // Password Guessing Game Variables
-        let password = generatePassword(6);
-        let attempts = 5;
-
-        // Function to generate random password
-        function generatePassword(length) {
-            const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-            let password = '';
-            for (let i = 0; i < length; i++) {
-                const randomIndex = Math.floor(Math.random() * characters.length);
-                password += characters.charAt(randomIndex);
+            if (checkWinner("X")) {
+                showPopup("You win! 🎉");
+                endGame("You win! 🎉");
+                return;
+            } else if (isTie()) {
+                showPopup("It's a tie! 😐");
+                endGame("It's a tie! 😐");
+                return;
             }
-            return password;
+
+            setTimeout(aiMove, 500); // AI moves after a short delay
         }
 
-        // Function to start Password Game
-        function startPasswordGame() {
-            startMenu.style.display = "none";
-            passwordGame.style.display = "block";
-        }
+        // AI (Arham) Move using Minimax Algorithm
+        function aiMove() {
+            let bestScore = -Infinity;
+            let bestMove;
 
-        // Function to check password
-        function checkPassword() {
-            const userGuess = document.getElementById('userGuess').value;
-            const resultElement = document.getElementById('result');
-
-            if (userGuess === password) {
-                resultElement.textContent = 'Correct! You guessed the password! 🎉';
-                resultElement.className = 'result correct';
-            } else {
-                attempts--;
-                if (attempts <= 0) {
-                    resultElement.textContent = `Game Over! The password was ${password}`;
-                    resultElement.className = 'result incorrect';
-                } else {
-                    resultElement.textContent = `Incorrect! You have ${attempts} attempts left.`;
-                    resultElement.className = 'result incorrect';
+            gameBoard.forEach((cell, index) => {
+                if (cell === "") {
+                    gameBoard[index] = "O";
+                    let score = minimax(gameBoard, 0, false);
+                    gameBoard[index] = "";
+                    if (score > bestScore) {
+                        bestScore = score;
+                        bestMove = index;
+                    }
                 }
+            });
+
+            gameBoard[bestMove] = "O";
+            let cell = document.querySelector(`.cell[data-index='${bestMove}']`);
+            cell.innerText = "O";
+            cell.classList.add("taken");
+
+            if (checkWinner("O")) {
+                showPopup("Arham wins! 🤖");
+                endGame("Arham wins! 🤖");
+                return;
+            } else if (isTie()) {
+                showPopup("It's a tie! 😐");
+                endGame("It's a tie! 😐");
+                return;
             }
-            document.getElementById('userGuess').value = '';
+        }
+
+        // Minimax Algorithm
+        function minimax(board, depth, isMaximizing) {
+            if (checkWinner("O")) return 10 - depth;
+            if (checkWinner("X")) return depth - 10;
+            if (isTie()) return 0;
+
+            if (isMaximizing) {
+                let bestScore = -Infinity;
+                board.forEach((cell, index) => {
+                    if (cell === "") {
+                        board[index] = "O";
+                        bestScore = Math.max(bestScore, minimax(board, depth + 1, false));
+                        board[index] = "";
+                    }
+                });
+                return bestScore;
+            } else {
+                let bestScore = Infinity;
+                board.forEach((cell, index) => {
+                    if (cell === "") {
+                        board[index] = "X";
+                        bestScore = Math.min(bestScore, minimax(board, depth + 1, true));
+                        board[index] = "";
+                    }
+                });
+                return bestScore;
+            }
+        }
+
+        // Check for Winner
+        function checkWinner(player) {
+            const winPatterns = [
+                [0, 1, 2], [3, 4, 5], [6, 7, 8],
+                [0, 3, 6], [1, 4, 7], [2, 5, 8],
+                [0, 4, 8], [2, 4, 6]
+            ];
+            return winPatterns.some(pattern => pattern.every(index => gameBoard[index] === player));
+        }
+
+        // Check for Tie
+        function isTie() {
+            return gameBoard.every(cell => cell !== "");
+        }
+
+        // Show Pop-up
+        function showPopup(message) {
+            popupMessage.innerText = message;
+            popup.style.display = "block";
+        }
+
+        // Close Pop-up
+        function closePopup() {
+            popup.style.display = "none";
+        }
+
+        // End Game
+        function endGame(message) {
+            gameActive = false;
+            gameContainer.style.display = "none";
+            endMenu.style.display = "flex";
+            endMessage.innerText = message;
+        }
+
+        // Restart Game
+        function restartGame() {
+            location.reload();
         }
     </script>
 
