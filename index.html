@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Game Hub</title>
+    <title>Beat Arham</title>
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -39,175 +39,7 @@
         }
         .game-container {
             display: none;
-        }
-        .back-button {
-            margin-top: 20px;
-            background-color: #28a745;
-            font-size: 1rem;
-            padding: 10px 20px;
-            cursor: pointer;
-        }
-    </style>
-</head>
-<body>
-
-    <h1>Game Hub</h1>
-
-    <!-- Start Menu -->
-    <div class="start-menu">
-        <button class="button" onclick="startTicTacToe()">Start Tic-Tac-Toe</button>
-        <button class="button" onclick="startPasswordGame()">Start Password Game</button>
-    </div>
-
-    <!-- Tic-Tac-Toe Game -->
-    <div class="game-container" id="ticTacToeGame">
-        <h2>Tic-Tac-Toe vs Arham</h2>
-        <div class="board" id="board"></div>
-        <button class="back-button" onclick="goBackToMenu()">Back to Menu</button>
-    </div>
-
-    <!-- Password Guessing Game -->
-    <div class="game-container" id="passwordGame">
-        <h2>Password Guessing Game</h2>
-        <div class="game-container">
-            <p class="hint">Hint: The password is a mix of uppercase letters, lowercase letters, and numbers.</p>
-            <div class="input-container">
-                <input type="text" id="userGuess" placeholder="Enter your guess" maxlength="6">
-                <button onclick="checkPassword()">Submit</button>
-            </div>
-            <p class="result" id="result"></p>
-            <button class="back-button" onclick="goBackToMenu()">Back to Menu</button>
-        </div>
-    </div>
-
-    <script>
-        // Tic-Tac-Toe Game
-        const board = document.getElementById("board");
-        const startMenu = document.querySelector(".start-menu");
-        const ticTacToeGame = document.getElementById("ticTacToeGame");
-        const passwordGame = document.getElementById("passwordGame");
-        let gameBoard = ["", "", "", "", "", "", "", "", ""];
-        let currentPlayer = "X";
-        let gameActive = false;
-
-        function startTicTacToe() {
-            startMenu.style.display = "none";
-            ticTacToeGame.style.display = "block";
-            createBoard();
-            gameActive = true;
-        }
-
-        function createBoard() {
-            board.innerHTML = "";
-            gameBoard.forEach((cell, index) => {
-                let div = document.createElement("div");
-                div.classList.add("cell");
-                div.dataset.index = index;
-                div.innerText = cell;
-                div.addEventListener("click", handleMove);
-                board.appendChild(div);
-            });
-        }
-
-        function handleMove(event) {
-            let index = event.target.dataset.index;
-            if (gameBoard[index] !== "" || !gameActive) return;
-
-            gameBoard[index] = "X";
-            event.target.innerText = "X";
-            event.target.classList.add("taken");
-            // Add AI move and win/tie check here...
-        }
-
-        function goBackToMenu() {
-            ticTacToeGame.style.display = "none";
-            passwordGame.style.display = "none";
-            startMenu.style.display = "flex";
-        }
-
-        // Password Game
-        let password = generatePassword(6);
-        let attempts = 5;
-
-        function generatePassword(length) {
-            const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-            let password = '';
-            for (let i = 0; i < length; i++) {
-                const randomIndex = Math.floor(Math.random() * characters.length);
-                password += characters.charAt(randomIndex);
-            }
-            return password;
-        }
-
-        function startPasswordGame() {
-            startMenu.style.display = "none";
-            passwordGame.style.display = "block";
-        }
-
-        function checkPassword() {
-            const userGuess = document.getElementById('userGuess').value;
-            const resultElement = document.getElementById('result');
-
-            if (userGuess === password) {
-                resultElement.textContent = 'Correct! You guessed the password! 🎉';
-                resultElement.className = 'result correct';
-            } else {
-                attempts--;
-                if (attempts <= 0) {
-                    resultElement.textContent = `Game Over! The password was ${password}`;
-                    resultElement.className = 'result incorrect';
-                } else {
-                    resultElement.textContent = `Incorrect! You have ${attempts} attempts left.`;
-                    resultElement.className = 'result incorrect';
-                }
-            }
-            document.getElementById('userGuess').value = '';
-        }
-    </script>
-
-</body>
-</html>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Game Hub</title>
-    <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            background-color: #282c34;
-            color: white;
-            text-align: center;
-            margin: 0;
-            padding: 0;
-        }
-        h1 {
             margin-top: 50px;
-            font-size: 3rem;
-        }
-        .start-menu {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
-        .button {
-            background-color: #007BFF;
-            color: white;
-            padding: 15px 30px;
-            margin: 15px;
-            font-size: 1.2rem;
-            cursor: pointer;
-            border-radius: 5px;
-            transition: background-color 0.3s;
-        }
-        .button:hover {
-            background-color: #0056b3;
-        }
-        .game-container {
-            display: none;
         }
         .back-button {
             margin-top: 20px;
@@ -216,11 +48,64 @@
             padding: 10px 20px;
             cursor: pointer;
         }
+        .board {
+            display: grid;
+            grid-template-columns: repeat(3, 100px);
+            grid-template-rows: repeat(3, 100px);
+            gap: 5px;
+            margin: 20px auto;
+        }
+        .cell {
+            width: 100px;
+            height: 100px;
+            background-color: #444;
+            color: white;
+            font-size: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+        .cell.taken {
+            cursor: not-allowed;
+        }
+        .input-container {
+            margin: 20px;
+        }
+        .input-container input {
+            padding: 10px;
+            font-size: 1rem;
+            width: 200px;
+            border-radius: 5px;
+            border: 2px solid #fff;
+            background-color: #333;
+            color: white;
+        }
+        .input-container button {
+            padding: 10px 20px;
+            margin-left: 10px;
+            background-color: #007BFF;
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 1rem;
+            border-radius: 5px;
+        }
+        .result {
+            font-size: 1.2rem;
+            margin-top: 20px;
+        }
+        .result.correct {
+            color: green;
+        }
+        .result.incorrect {
+            color: red;
+        }
     </style>
 </head>
 <body>
 
-    <h1>Game Hub</h1>
+    <h1>Beat Arham</h1>
 
     <!-- Start Menu -->
     <div class="start-menu">
@@ -238,27 +123,26 @@
     <!-- Password Guessing Game -->
     <div class="game-container" id="passwordGame">
         <h2>Password Guessing Game</h2>
-        <div class="game-container">
-            <p class="hint">Hint: The password is a mix of uppercase letters, lowercase letters, and numbers.</p>
-            <div class="input-container">
-                <input type="text" id="userGuess" placeholder="Enter your guess" maxlength="6">
-                <button onclick="checkPassword()">Submit</button>
-            </div>
-            <p class="result" id="result"></p>
-            <button class="back-button" onclick="goBackToMenu()">Back to Menu</button>
+        <p class="hint">Hint: The password is a mix of uppercase letters, lowercase letters, and numbers.</p>
+        <div class="input-container">
+            <input type="text" id="userGuess" placeholder="Enter your guess" maxlength="6">
+            <button onclick="checkPassword()">Submit</button>
         </div>
+        <p class="result" id="result"></p>
+        <button class="back-button" onclick="goBackToMenu()">Back to Menu</button>
     </div>
 
     <script>
-        // Tic-Tac-Toe Game
+        // Tic-Tac-Toe Game Variables
         const board = document.getElementById("board");
         const startMenu = document.querySelector(".start-menu");
         const ticTacToeGame = document.getElementById("ticTacToeGame");
         const passwordGame = document.getElementById("passwordGame");
         let gameBoard = ["", "", "", "", "", "", "", "", ""];
-        let currentPlayer = "X";
+        let currentPlayer = "X"; // Human starts first
         let gameActive = false;
 
+        // Function to start Tic-Tac-Toe Game
         function startTicTacToe() {
             startMenu.style.display = "none";
             ticTacToeGame.style.display = "block";
@@ -266,6 +150,7 @@
             gameActive = true;
         }
 
+        // Create Tic-Tac-Toe Board
         function createBoard() {
             board.innerHTML = "";
             gameBoard.forEach((cell, index) => {
@@ -278,6 +163,7 @@
             });
         }
 
+        // Handle Player Move
         function handleMove(event) {
             let index = event.target.dataset.index;
             if (gameBoard[index] !== "" || !gameActive) return;
@@ -285,19 +171,22 @@
             gameBoard[index] = "X";
             event.target.innerText = "X";
             event.target.classList.add("taken");
-            // Add AI move and win/tie check here...
+
+            // Add AI Move and win/tie check logic here...
         }
 
+        // Function to go back to the main menu
         function goBackToMenu() {
             ticTacToeGame.style.display = "none";
             passwordGame.style.display = "none";
             startMenu.style.display = "flex";
         }
 
-        // Password Game
+        // Password Guessing Game Variables
         let password = generatePassword(6);
         let attempts = 5;
 
+        // Function to generate random password
         function generatePassword(length) {
             const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
             let password = '';
@@ -308,11 +197,13 @@
             return password;
         }
 
+        // Function to start Password Game
         function startPasswordGame() {
             startMenu.style.display = "none";
             passwordGame.style.display = "block";
         }
 
+        // Function to check password
         function checkPassword() {
             const userGuess = document.getElementById('userGuess').value;
             const resultElement = document.getElementById('result');
