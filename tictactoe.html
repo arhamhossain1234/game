@@ -65,7 +65,7 @@
         let player = "X";
         let bot = "O";
 
-         
+        // Minimax Algorithm (Arham is now unbeatable)
         function minimax(board, depth, isMaximizing) {
             let winner = checkWinnerRaw(board);
             if (winner === "O") return 10 - depth;
@@ -97,7 +97,7 @@
             }
         }
 
-        
+        // AI Move (Minimax)
         function botMove() {
             let bestScore = -Infinity;
             let bestMove;
@@ -123,11 +123,11 @@
                     setTimeout(() => alert("It's a tie! 😐"), 100);
                     return resetGame();
                 }
-                player = "X"; 
+                player = "X"; // Switch back to player
             }
         }
 
-        
+        // Check Winner
         function checkWinner(symbol) {
             const winningCombos = [
                 [0, 1, 2], [3, 4, 5], [6, 7, 8], // Rows
@@ -151,7 +151,7 @@
             return null;
         }
 
-         
+        // Handle Player Click
         function playerMove(index) {
             if (!gameBoard[index]) {
                 gameBoard[index] = player;
@@ -169,14 +169,14 @@
             }
         }
 
-         
+        // Reset Game
         function resetGame() {
             gameBoard.fill(null);
             cells.forEach(cell => cell.innerText = "");
             player = "X";
         }
 
-         
+        // Create Board
         function createBoard() {
             for (let i = 0; i < 9; i++) {
                 let cell = document.createElement("div");
