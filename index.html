@@ -6,188 +6,247 @@
     <title>Tic-Tac-Toe vs Arham</title>
     <style>
         body {
-            background-color: black;
-            color: white;
-            text-align: center;
             font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #1e1e1e;
+            color: white;
         }
-        h1 {
-            color: cyan;
+        .container {
+            display: none;
+        }
+        .start-menu, .end-menu {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
         }
         .board {
             display: grid;
             grid-template-columns: repeat(3, 100px);
             grid-template-rows: repeat(3, 100px);
             gap: 5px;
-            justify-content: center;
             margin: 20px auto;
         }
         .cell {
             width: 100px;
             height: 100px;
-            background-color: #2c3e50;
+            background-color: #444;
+            color: white;
+            font-size: 36px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 36px;
-            color: white;
             cursor: pointer;
-            border-radius: 10px;
         }
-        .cell:hover {
-            background-color: #34495e;
+        .cell.taken {
+            cursor: not-allowed;
+        }
+        .popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            color: black;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
         }
         .button {
-            margin-top: 20px;
-            padding: 10px 20px;
-            font-size: 18px;
+            background-color: #007BFF;
             color: white;
-            background-color: #e74c3c;
+            padding: 10px 20px;
             border: none;
-            border-radius: 5px;
             cursor: pointer;
-        }
-        .button:hover {
-            background-color: #c0392b;
+            font-size: 18px;
+            margin-top: 10px;
         }
     </style>
 </head>
 <body>
 
-    <h1>Tic-Tac-Toe vs Arham 🤖</h1>
-    <div class="board" id="board"></div>
-    <button class="button" onclick="resetGame()">Restart</button>
+    <!-- Start Menu -->
+    <div class="start-menu">
+        <h1>Welcome to Tic-Tac-Toe vs Arham</h1>
+        <button class="button" onclick="startGame()">Start Game</button>
+    </div>
+
+    <!-- Game Board -->
+    <div class="container">
+        <h2>Tic-Tac-Toe vs Arham</h2>
+        <div class="board" id="board"></div>
+    </div>
+
+    <!-- End Menu -->
+    <div class="end-menu" style="display: none;">
+        <h1 id="endMessage"></h1>
+        <button class="button" onclick="restartGame()">Restart</button>
+    </div>
+
+    <!-- Popup Message -->
+    <div class="popup" id="popup">
+        <p id="popupMessage"></p>
+        <button class="button" onclick="closePopup()">OK</button>
+    </div>
 
     <script>
         const board = document.getElementById("board");
-        let cells = [];
-        let gameBoard = Array(9).fill(null);
-        let player = "X";
-        let bot = "O";
+        const popup = document.getElementById("popup");
+        const popupMessage = document.getElementById("popupMessage");
+        const startMenu = document.querySelector(".start-menu");
+        const gameContainer = document.querySelector(".container");
+        const endMenu = document.querySelector(".end-menu");
+        const endMessage = document.getElementById("endMessage");
 
-        // Minimax Algorithm (Arham is now unbeatable)
+        let gameBoard = ["", "", "", "", "", "", "", "", ""];
+        let currentPlayer = "X"; // Human starts first
+        let gameActive = false;
+
+        // Start Game
+        function startGame() {
+            startMenu.style.display = "none";
+            gameContainer.style.display = "block";
+            createBoard();
+            gameActive = true;
+        }
+
+        // Create Tic-Tac-Toe Board
+        function createBoard() {
+            board.innerHTML = "";
+            gameBoard.forEach((cell, index) => {
+                let div = document.createElement("div");
+                div.classList.add("cell");
+                div.dataset.index = index;
+                div.innerText = cell;
+                div.addEventListener("click", handleMove);
+                board.appendChild(div);
+            });
+        }
+
+        // Handle Player Move
+        function handleMove(event) {
+            let index = event.target.dataset.index;
+            if (gameBoard[index] !== "" || !gameActive) return;
+
+            gameBoard[index] = "X";
+            event.target.innerText = "X";
+            event.target.classList.add("taken");
+
+            if (checkWinner("X")) {
+                showPopup("You win! 🎉");
+                endGame("You win! 🎉");
+                return;
+            } else if (isTie()) {
+                showPopup("It's a tie! 😐");
+                endGame("It's a tie! 😐");
+                return;
+            }
+
+            setTimeout(aiMove, 500); // AI moves after a short delay
+        }
+
+        // AI (Arham) Move using Minimax Algorithm
+        function aiMove() {
+            let bestScore = -Infinity;
+            let bestMove;
+
+            gameBoard.forEach((cell, index) => {
+                if (cell === "") {
+                    gameBoard[index] = "O";
+                    let score = minimax(gameBoard, 0, false);
+                    gameBoard[index] = "";
+                    if (score > bestScore) {
+                        bestScore = score;
+                        bestMove = index;
+                    }
+                }
+            });
+
+            gameBoard[bestMove] = "O";
+            let cell = document.querySelector(`.cell[data-index='${bestMove}']`);
+            cell.innerText = "O";
+            cell.classList.add("taken");
+
+            if (checkWinner("O")) {
+                showPopup("Arham wins! 🤖");
+                endGame("Arham wins! 🤖");
+                return;
+            } else if (isTie()) {
+                showPopup("It's a tie! 😐");
+                endGame("It's a tie! 😐");
+                return;
+            }
+        }
+
+        // Minimax Algorithm
         function minimax(board, depth, isMaximizing) {
-            let winner = checkWinnerRaw(board);
-            if (winner === "O") return 10 - depth;
-            if (winner === "X") return depth - 10;
-            if (!board.includes(null)) return 0;
+            if (checkWinner("O")) return 10 - depth;
+            if (checkWinner("X")) return depth - 10;
+            if (isTie()) return 0;
 
             if (isMaximizing) {
                 let bestScore = -Infinity;
-                for (let i = 0; i < 9; i++) {
-                    if (!board[i]) {
-                        board[i] = "O";
-                        let score = minimax(board, depth + 1, false);
-                        board[i] = null;
-                        bestScore = Math.max(score, bestScore);
+                board.forEach((cell, index) => {
+                    if (cell === "") {
+                        board[index] = "O";
+                        bestScore = Math.max(bestScore, minimax(board, depth + 1, false));
+                        board[index] = "";
                     }
-                }
+                });
                 return bestScore;
             } else {
                 let bestScore = Infinity;
-                for (let i = 0; i < 9; i++) {
-                    if (!board[i]) {
-                        board[i] = "X";
-                        let score = minimax(board, depth + 1, true);
-                        board[i] = null;
-                        bestScore = Math.min(score, bestScore);
+                board.forEach((cell, index) => {
+                    if (cell === "") {
+                        board[index] = "X";
+                        bestScore = Math.min(bestScore, minimax(board, depth + 1, true));
+                        board[index] = "";
                     }
-                }
+                });
                 return bestScore;
             }
         }
 
-        // AI Move (Minimax)
-        function botMove() {
-            let bestScore = -Infinity;
-            let bestMove;
-            for (let i = 0; i < 9; i++) {
-                if (!gameBoard[i]) {
-                    gameBoard[i] = bot;
-                    let score = minimax(gameBoard, 0, false);
-                    gameBoard[i] = null;
-                    if (score > bestScore) {
-                        bestScore = score;
-                        bestMove = i;
-                    }
-                }
-            }
-            if (bestMove !== undefined) {
-                gameBoard[bestMove] = bot;
-                cells[bestMove].innerText = bot;
-                if (checkWinner(bot)) {
-                    setTimeout(() => alert("Arham wins! 🤖"), 100);
-                    return resetGame();
-                }
-                if (!gameBoard.includes(null)) {
-                    setTimeout(() => alert("It's a tie! 😐"), 100);
-                    return resetGame();
-                }
-                player = "X"; // Switch back to player
-            }
-        }
-
-        // Check Winner
-        function checkWinner(symbol) {
-            const winningCombos = [
-                [0, 1, 2], [3, 4, 5], [6, 7, 8], // Rows
-                [0, 3, 6], [1, 4, 7], [2, 5, 8], // Columns
-                [0, 4, 8], [2, 4, 6]  // Diagonals
-            ];
-            return winningCombos.some(combo => combo.every(index => gameBoard[index] === symbol));
-        }
-
-        function checkWinnerRaw(board) {
-            const winningCombos = [
-                [0, 1, 2], [3, 4, 5], [6, 7, 8], 
-                [0, 3, 6], [1, 4, 7], [2, 5, 8], 
+        // Check for Winner
+        function checkWinner(player) {
+            const winPatterns = [
+                [0, 1, 2], [3, 4, 5], [6, 7, 8],
+                [0, 3, 6], [1, 4, 7], [2, 5, 8],
                 [0, 4, 8], [2, 4, 6]
             ];
-            for (let combo of winningCombos) {
-                if (board[combo[0]] && board[combo[0]] === board[combo[1]] && board[combo[0]] === board[combo[2]]) {
-                    return board[combo[0]];
-                }
-            }
-            return null;
+            return winPatterns.some(pattern => pattern.every(index => gameBoard[index] === player));
         }
 
-        // Handle Player Click
-        function playerMove(index) {
-            if (!gameBoard[index]) {
-                gameBoard[index] = player;
-                cells[index].innerText = player;
-                if (checkWinner(player)) {
-                    setTimeout(() => alert("You win! 🎉"), 100);
-                    return resetGame();
-                }
-                if (!gameBoard.includes(null)) {
-                    setTimeout(() => alert("It's a tie! 😐"), 100);
-                    return resetGame();
-                }
-                player = bot;
-                setTimeout(botMove, 500);
-            }
+        // Check for Tie
+        function isTie() {
+            return gameBoard.every(cell => cell !== "");
         }
 
-        // Reset Game
-        function resetGame() {
-            gameBoard.fill(null);
-            cells.forEach(cell => cell.innerText = "");
-            player = "X";
+        // Show Pop-up
+        function showPopup(message) {
+            popupMessage.innerText = message;
+            popup.style.display = "block";
         }
 
-        // Create Board
-        function createBoard() {
-            for (let i = 0; i < 9; i++) {
-                let cell = document.createElement("div");
-                cell.classList.add("cell");
-                cell.addEventListener("click", () => playerMove(i));
-                board.appendChild(cell);
-                cells.push(cell);
-            }
+        // Close Pop-up
+        function closePopup() {
+            popup.style.display = "none";
         }
 
-        createBoard();
+        // End Game
+        function endGame(message) {
+            gameActive = false;
+            gameContainer.style.display = "none";
+            endMenu.style.display = "flex";
+            endMessage.innerText = message;
+        }
+
+        // Restart Game
+        function restartGame() {
+            location.reload();
+        }
     </script>
 
 </body>
